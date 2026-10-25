@@ -1,0 +1,97 @@
+﻿@model PerceptionKitabataba.Models.ViewModels.RapportViewModel
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Rapports";
+}
+
+<h2>📊 Rapports et Statistiques</h2>
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Du</label>
+                    <input type="date" name="du" class="form-control" value="@Model.DateDebut.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Au</label>
+                    <input type="date" name="au" class="form-control" value="@Model.DateFin.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-success">🔎 Afficher</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Totaux -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center bg-light"><div class="card-body"><div class="small text-muted">Paiements</div><div class="h4 mb-0">@Model.NombrePaiements</div></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light"><div class="card-body"><div class="small text-muted">Total CDF</div><div class="h4 mb-0">@Model.TotalCDF.ToString("N0")</div></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light"><div class="card-body"><div class="small text-muted">Total USD</div><div class="h4 mb-0">@Model.TotalUSD.ToString("N0")</div></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light"><div class="card-body"><div class="small text-muted">Contre-valeur CDF</div><div class="h4 mb-0">@Model.ContreValeurCDF.ToString("N0")</div></div></div>
+    </div>
+</div>
+
+<!-- Recettes par classe -->
+<h4>📈 Recettes par classe</h4>
+@if (!Model.ParNiveau.Any())
+{
+    <div class="alert alert-info">Aucun paiement sur la période.</div>
+}
+else
+{
+    <table class="table table-sm">
+        <thead class="table-success">
+            <tr><th>Classe</th><th class="text-end">Paiements</th><th class="text-end">Total CDF</th><th class="text-end">Total USD</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.ParNiveau)
+            {
+                <tr>
+                    <td>@l.Niveau.Libelle()</td>
+                    <td class="text-end">@l.NombrePaiements</td>
+                    <td class="text-end">@l.TotalCDF.ToString("N0")</td>
+                    <td class="text-end">@l.TotalUSD.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Impayés -->
+<h4 class="mt-4">⚠️ Élèves avec solde impayé <span class="badge bg-warning text-dark">@Model.Impayes.Count</span></h4>
+@if (!Model.Impayes.Any())
+{
+    <div class="alert alert-success">🎉 Aucun impayé pour le moment.</div>
+}
+else
+{
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-sm">
+            <thead class="table-warning">
+                <tr><th>Matricule</th><th>Élève</th><th>Classe</th><th class="text-end">Reste CDF</th><th class="text-end">Reste USD</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var i in Model.Impayes)
+                {
+                    <tr>
+                        <td>@i.Eleve.Matricule</td>
+                        <td>@i.Eleve.NomComplet</td>
+                        <td>@i.Eleve.Niveau.Libelle()</td>
+                        <td class="text-end text-danger">@(i.ResteCDF > 0 ? i.ResteCDF.ToString("N0") : "—")</td>
+                        <td class="text-end text-danger">@(i.ResteUSD > 0 ? i.ResteUSD.ToString("N0") : "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

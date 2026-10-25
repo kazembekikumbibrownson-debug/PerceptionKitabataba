@@ -1,0 +1,89 @@
+﻿@model IEnumerable<PerceptionKitabataba.Models.Eleve>
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Élèves";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>👦 Liste des élèves <span class="badge bg-secondary">@Model.Count()</span></h2>
+
+    <div class="d-flex gap-2">
+        <!-- Bouton d'impression avec choix de la classe -->
+        <form asp-action="ImprimerListe" method="get" target="_blank" class="d-flex gap-1">
+            <select name="niveau" class="form-select form-select-sm" style="width: 200px;">
+                <option value="">Toutes les classes</option>
+                @foreach (var n in NiveauExtensions.Tous())
+                {
+                    <option value="@((int)n)">@n.Libelle()</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-primary">🖨️ Imprimer</button>
+        </form>
+
+        <a asp-action="Create" class="btn btn-success">➕ Inscrire un élève</a>
+    </div>
+</div>
+
+@if (TempData["Succes"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Succes"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" value="@ViewBag.Recherche" class="form-control" placeholder="🔎 Rechercher par nom, matricule..." />
+        <button type="submit" class="btn btn-outline-success">Rechercher</button>
+        @if (!string.IsNullOrEmpty(ViewBag.Recherche as string))
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Effacer</a>
+        }
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Aucun élève enregistré pour l'instant.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Matricule</th>
+                    <th>Nom complet</th>
+                    <th>Sexe</th>
+                    <th>Classe / Option</th>
+                    <th>Tuteur</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td><code>@e.Matricule</code></td>
+                        <td>@e.NomComplet</td>
+                        <td>@e.Sexe</td>
+                        <td>@e.NiveauComplet</td>
+                        <td>
+                            @e.Tuteur
+                            @if (!string.IsNullOrEmpty(e.Telephone))
+                            {
+                                <div class="text-muted small">@e.Telephone</div>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-sm btn-outline-secondary">👁️</a>
+                            <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">✏️</a>
+                            <a asp-action="Delete" asp-route-id="@e.Id" class="btn btn-sm btn-outline-danger">🗑️</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

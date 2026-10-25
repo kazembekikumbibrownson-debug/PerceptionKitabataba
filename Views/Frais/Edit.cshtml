@@ -1,0 +1,129 @@
+﻿@model PerceptionKitabataba.Models.ViewModels.FraisFormViewModel
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Modifier un frais";
+}
+
+<h2>✏️ Modifier le frais</h2>
+
+<div class="row">
+    <div class="col-md-9">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Libelle" class="form-label fw-bold">Libellé *</label>
+                    <input asp-for="Libelle" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Montant" class="form-label fw-bold">Montant *</label>
+                    <input asp-for="Montant" type="number" step="any" class="form-control" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Devise" class="form-label fw-bold">Devise</label>
+                    <select asp-for="Devise" class="form-select">
+                        <option value="CDF">CDF</option>
+                        <option value="USD">USD</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Periode" class="form-label fw-bold">Période</label>
+                    <input asp-for="Periode" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Type de frais *</label>
+                    <select asp-for="Type" class="form-select" id="typeFrais">
+                        <option value="0">Inscription</option>
+                        <option value="1">Mensuel (minerval)</option>
+                        <option value="2">Ponctuel</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3" id="zoneMois" style="display:none;">
+                    <label class="form-label">Mois</label>
+                    <select asp-for="Mois" class="form-select">
+                        <option value="">— Choisir —</option>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3" id="zoneAnnee" style="display:none;">
+                    <label class="form-label">Année</label>
+                    <input asp-for="AnneeCible" type="number" class="form-control" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Classes concernées *</label>
+                <div class="form-check mb-2">
+                    <input asp-for="ToutesClasses" class="form-check-input" id="chk_toutes" />
+                    <label asp-for="ToutesClasses" class="form-check-label fw-bold text-success">Toutes les classes</label>
+                </div>
+                <div id="liste_niveaux" class="border rounded p-3 bg-light">
+                    @foreach (var n in NiveauExtensions.Tous())
+                    {
+                        int val = (int)n;
+                        bool coche = Model.NiveauxSelectionnes.Contains(val);
+                        <div class="form-check">
+                            <input class="form-check-input chk-niveau" type="checkbox" name="NiveauxSelectionnes" value="@val" id="niv_@val" @(coche ? "checked" : "") />
+                            <label class="form-check-label" for="niv_@val">@n.Libelle()</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            const type = document.getElementById('typeFrais');
+            const zoneMois = document.getElementById('zoneMois');
+            const zoneAnnee = document.getElementById('zoneAnnee');
+            function majType() {
+                const mensuel = type.value === '1';
+                zoneMois.style.display = mensuel ? '' : 'none';
+                zoneAnnee.style.display = mensuel ? '' : 'none';
+            }
+            type.addEventListener('change', majType);
+            majType();
+        })();
+
+        (function() {
+            const chkToutes = document.getElementById('chk_toutes');
+            const zone = document.getElementById('liste_niveaux');
+            const cases = zone.querySelectorAll('.chk-niveau');
+            function majNiveaux() {
+                const desactive = chkToutes.checked;
+                cases.forEach(c => {
+                    c.disabled = desactive;
+                    if (desactive) c.checked = false;
+                });
+                zone.style.opacity = desactive ? '0.5' : '1';
+            }
+            chkToutes.addEventListener('change', majNiveaux);
+            majNiveaux();
+        })();
+    </script>
+}

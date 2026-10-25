@@ -1,0 +1,73 @@
+﻿@model IEnumerable<PerceptionKitabataba.Models.Paiement>
+@{
+    ViewData["Title"] = "Encaisser";
+}
+
+<h2>💵 Encaisser un paiement</h2>
+
+@if (TempData["Erreur"] != null)
+{
+    <div class="alert alert-danger">@TempData["Erreur"]</div>
+}
+@if (TempData["Succes"] != null)
+{
+    <div class="alert alert-success">@TempData["Succes"]</div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">🔎 Rechercher un élève</h5>
+        <form asp-action="Rechercher" method="post">
+            @Html.AntiForgeryToken()
+            <div class="input-group">
+                <input type="text" name="terme" class="form-control form-control-lg" placeholder="Tapez un matricule, nom ou prénom..." autofocus />
+                <button type="submit" class="btn btn-success">Rechercher</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <div class="text-muted small">Encaissé aujourd'hui (CDF)</div>
+                <div class="h4 mb-0">@ViewBag.TotalJourCDF.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <div class="text-muted small">Encaissé aujourd'hui (USD)</div>
+                <div class="h4 mb-0">@ViewBag.TotalJourUSD.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>📒 Journal du jour</h4>
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Aucun paiement aujourd'hui.</div>
+}
+else
+{
+    <table class="table table-sm">
+        <thead class="table-success">
+            <tr><th>Reçu</th><th>Élève</th><th>Frais</th><th class="text-end">Montant</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>N° @p.NumeroRecu</td>
+                    <td>@p.Eleve?.NomComplet</td>
+                    <td>@p.Frais?.Libelle</td>
+                    <td class="text-end">@p.Montant.ToString("N0") @p.Devise</td>
+                    <td class="text-end"><a asp-action="RecuGroupe" asp-route-numero="@p.NumeroRecu" target="_blank" class="btn btn-sm btn-outline-primary">🖨️</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

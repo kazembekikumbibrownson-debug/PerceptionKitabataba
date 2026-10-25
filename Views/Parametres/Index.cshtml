@@ -1,0 +1,127 @@
+﻿@model PerceptionKitabataba.Models.Parametre
+@{
+    ViewData["Title"] = "Paramètres";
+}
+
+<h2>⚙️ Paramètres de l'école</h2>
+
+@if (TempData["Succes"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Succes"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Erreur"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Erreur"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- CARTE 1 : FORMULAIRE DES PARAMÈTRES -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form asp-action="Index" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="NomEcole" class="form-label fw-bold">Nom de l'école</label>
+                    <input asp-for="NomEcole" class="form-control" required />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="AnneeScolaire" class="form-label fw-bold">Année scolaire</label>
+                    <input asp-for="AnneeScolaire" class="form-control" placeholder="Ex: 2025-2026" required />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="AnneeDebutScolaire" class="form-label fw-bold">Année de début</label>
+                    <input asp-for="AnneeDebutScolaire" type="number" class="form-control" placeholder="2025" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="NomPercepteur" class="form-label fw-bold">Nom du percepteur</label>
+                    <input asp-for="NomPercepteur" class="form-control" placeholder="Apparaîtra sur les reçus" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="TauxUSDversCDF" class="form-label fw-bold">Taux USD → CDF</label>
+                    <input asp-for="TauxUSDversCDF" type="number" step="any" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MontantInscription" class="form-label fw-bold">Frais d'inscription (CDF)</label>
+                    <input asp-for="MontantInscription" type="number" step="any" class="form-control" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MontantMinervalMensuel" class="form-label fw-bold">Minerval mensuel (CDF)</label>
+                    <input asp-for="MontantMinervalMensuel" type="number" step="any" class="form-control" required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">💾 Enregistrer les paramètres</button>
+        </form>
+    </div>
+</div>
+
+<!-- CARTE 2 : GÉNÉRATEUR D'ANNÉE -->
+<div class="card border-success mb-4">
+    <div class="card-body">
+        <h5 class="card-title text-success">🗓️ Générateur d'année scolaire</h5>
+        <p class="text-muted">
+            Ce bouton crée automatiquement les frais pour l'année <strong>@Model.AnneeDebutScolaire-@(Model.AnneeDebutScolaire + 1)</strong> :
+        </p>
+        <ul>
+            <li>1 frais d'<strong>inscription</strong> de @Model.MontantInscription.ToString("N0") CDF</li>
+            <li>9 frais de <strong>minerval</strong> (Octobre → Juin) de @Model.MontantMinervalMensuel.ToString("N0") CDF</li>
+        </ul>
+        <form asp-action="GenererAnnee" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-success" onclick="return confirm('Générer les frais ? Les frais existants ne seront pas dupliqués.');">
+                🗓️ Générer les frais pour @Model.AnneeDebutScolaire-@(Model.AnneeDebutScolaire + 1)
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- CARTE 3 : SAUVEGARDE (NOUVEAU) -->
+<hr class="my-4" />
+<div class="card border-primary shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title text-primary">💾 Sauvegarde des données</h5>
+        <p class="text-muted">
+            Il est très important de sauvegarder vos données régulièrement (chaque fin de journée par exemple) sur une clé USB.
+            Cliquez sur le bouton ci-dessous pour télécharger le fichier de base de données de l'école.
+        </p>
+        <a asp-action="TelechargerSauvegarde" class="btn btn-primary">
+            ⬇️ Télécharger la sauvegarde (.db)
+        </a>
+    </div>
+</div>
+<hr class="my-4" />
+
+<div class="card border-danger shadow-sm mt-4">
+    <div class="card-body">
+        <h5 class="card-title text-danger">♻️ Restaurer une sauvegarde</h5>
+        <p class="text-muted">
+            <strong>Attention :</strong> cette action remplacera TOUTES les données actuelles (élèves, paiements, dépenses) par celles du fichier choisi.
+            Utilisez cette fonction uniquement si vous changez d'ordinateur ou si vous devez récupérer des données après une erreur.
+        </p>
+        <form asp-action="RestaurerSauvegarde" method="post" enctype="multipart/form-data" onsubmit="return confirm('Êtes-vous sûr de vouloir écraser les données actuelles ?');">
+            @Html.AntiForgeryToken()
+            <div class="row align-items-end">
+                <div class="col-md-8 mb-2">
+                    <label class="form-label fw-bold">Choisir le fichier de sauvegarde (.db)</label>
+                    <input type="file" name="fichierSauvegarde" class="form-control" accept=".db" required />
+                </div>
+                <div class="col-md-4 mb-2">
+                    <button type="submit" class="btn btn-danger w-100">♻️ Restaurer les données</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div

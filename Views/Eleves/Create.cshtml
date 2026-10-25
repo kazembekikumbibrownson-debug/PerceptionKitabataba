@@ -1,0 +1,87 @@
+﻿@model PerceptionKitabataba.Models.Eleve
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Inscrire un élève";
+}
+
+<h2>➕ Inscrire un élève</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- ===== BLOC MODIFIÉ (Matricule + Niveau + Section) ===== -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Matricule" class="form-label fw-bold">Matricule</label>
+                    <input asp-for="Matricule" class="form-control" placeholder="Laisser vide pour auto" />
+                    <span asp-validation-for="Matricule" class="text-danger small"></span>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label asp-for="Niveau" class="form-label fw-bold">Classe / Option</label>
+                    <select asp-for="Niveau" class="form-select">
+                        @foreach (var n in NiveauExtensions.Tous())
+                        {
+                            <option value="@((int)n)">@n.Libelle()</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Section" class="form-label fw-bold">Section (A, B...)</label>
+                    <input asp-for="Section" class="form-control" placeholder="Ex: A" />
+                </div>
+            </div>
+            <!-- ===== FIN DU BLOC MODIFIÉ ===== -->
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Nom" class="form-label fw-bold">Nom *</label>
+                    <input asp-for="Nom" class="form-control" required />
+                    <span asp-validation-for="Nom" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Postnom" class="form-label fw-bold">Post-nom</label>
+                    <input asp-for="Postnom" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Prenom" class="form-label fw-bold">Prénom *</label>
+                    <input asp-for="Prenom" class="form-control" required />
+                    <span asp-validation-for="Prenom" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Sexe" class="form-label fw-bold">Sexe</label>
+                    <select asp-for="Sexe" class="form-select">
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label asp-for="Tuteur" class="form-label fw-bold">Nom du tuteur</label>
+                    <input asp-for="Tuteur" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Telephone" class="form-label fw-bold">Téléphone tuteur</label>
+                    <input asp-for="Telephone" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="AnneeScolaire" class="form-label fw-bold">Année scolaire</label>
+                    <input asp-for="AnneeScolaire" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="DateInscription" class="form-label fw-bold">Date d'inscription</label>
+                    <input asp-for="DateInscription" type="date" class="form-control" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">💾 Enregistrer</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+        </form>
+    </div>
+</div>

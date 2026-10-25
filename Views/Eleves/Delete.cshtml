@@ -1,0 +1,32 @@
+﻿@model PerceptionKitabataba.Models.Eleve
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Supprimer un élève";
+}
+
+<h2 class="text-danger">🗑️ Supprimer un élève</h2>
+
+<div class="alert alert-warning">
+    <strong>Attention :</strong> cette action est irréversible.
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Matricule</dt>
+            <dd class="col-sm-9"><code>@Model.Matricule</code></dd>
+
+            <dt class="col-sm-3">Nom complet</dt>
+            <dd class="col-sm-9">@Model.NomComplet</dd>
+
+            <dt class="col-sm-3">Classe</dt>
+            <dd class="col-sm-9">@Model.Niveau.Libelle()</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post" class="mt-3">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+</form>

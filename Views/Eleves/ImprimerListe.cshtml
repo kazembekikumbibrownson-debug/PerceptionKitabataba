@@ -1,0 +1,134 @@
+﻿@model IEnumerable<PerceptionKitabataba.Models.Eleve>
+@using PerceptionKitabataba.Models
+@{
+    Layout = null; // Pas de menu, c'est une page pour l'imprimante
+    var niveauFiltre = ViewBag.NiveauFiltre as Niveau?;
+    string titreClasse = niveauFiltre.HasValue ? niveauFiltre.Value.Libelle() : "Toutes les classes";
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>Liste des élèves - @titreClasse</title>
+    <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                padding: 20px;
+                color: #000;
+            }
+
+            h1 {
+                text-align: center;
+                color: #0b5c3f;
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .sub {
+                text-align: center;
+                color: #555;
+                font-size: 14px;
+                margin-bottom: 20px;
+                font-weight: bold;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            th {
+                background: #eef3f0;
+                text-align: left;
+                padding: 6px;
+                font-size: 12px;
+                border: 1px solid #ccc;
+            }
+
+            td {
+                padding: 6px;
+                border: 1px solid #ccc;
+                font-size: 12px;
+            }
+
+            .no-print {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+                .no-print button {
+                    padding: 10px 20px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    background: #0b5c3f;
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                }
+
+                    .no-print button:hover {
+                        background: #12805a;
+                    }
+
+            @@media print {
+                .no-print {
+                    display: none;
+                }
+
+                body {
+                    padding: 0;
+                }
+            }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ Imprimer la liste</button>
+        <br><br>
+        <a href="/Eleves">← Retour à la liste des élèves</a>
+    </div>
+
+    <h1>@ViewBag.NomEcole</h1>
+    <div class="sub">
+        Liste des élèves : @titreClasse<br />
+        Année scolaire @ViewBag.AnneeScolaire
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40px;">N°</th>
+                <th>Matricule</th>
+                <th>Nom complet</th>
+                <th>Sexe</th>
+                <th>Classe</th>
+                <th>Tuteur / Téléphone</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int i = 1;
+            }
+            @foreach (var e in Model)
+            {
+                <tr>
+                    <td>@i</td>
+                    <td>@e.Matricule</td>
+                    <td>@e.NomComplet</td>
+                    <td>@e.Sexe</td>
+                    <td>@e.NiveauComplet</td>
+                    <td>@e.Tuteur @(!string.IsNullOrEmpty(e.Telephone) ? $"({e.Telephone})" : "")</td>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+
+    <div style="margin-top: 30px; text-align: right; font-size: 12px;">
+        Total : <strong>@Model.Count()</strong> élève(s)
+    </div>
+</body>
+</html>

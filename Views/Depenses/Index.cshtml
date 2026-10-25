@@ -1,0 +1,122 @@
+﻿@model IEnumerable<PerceptionKitabataba.Models.Depense>
+@{
+    ViewData["Title"] = "Dépenses";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>📉 Gestion des Dépenses</h2>
+</div>
+
+@if (TempData["Succes"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Succes"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Erreur"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Erreur"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Formulaire d'ajout -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">➕ Nouvelle dépense</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Motif *</label>
+                        <input type="text" name="Motif" class="form-control" required placeholder="Ex: Achat de craie" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Date</label>
+                        <input type="date" name="DateDepense" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-7 mb-3">
+                            <label class="form-label fw-bold">Montant *</label>
+                            <input type="number" name="Montant" step="any" min="0" class="form-control" required />
+                        </div>
+                        <div class="col-5 mb-3">
+                            <label class="form-label fw-bold">Devise</label>
+                            <select name="Devise" class="form-select">
+                                <option value="CDF">CDF</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Observation</label>
+                        <input type="text" name="Observation" class="form-control" placeholder="Optionnel" />
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">💾 Enregistrer la sortie</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des dépenses -->
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0">Historique des dépenses</h5>
+                    <div>
+                        <span class="badge bg-secondary fs-6 me-2">Total CDF : @ViewBag.TotalCDF.ToString("N0")</span>
+                        <span class="badge bg-secondary fs-6">Total USD : @ViewBag.TotalUSD.ToString("N0")</span>
+                    </div>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info">Aucune dépense enregistrée pour l'instant.</div>
+                }
+                else
+                {
+                    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light" style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Motif</th>
+                                    <th class="text-end">Montant</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in Model)
+                                {
+                                    <tr>
+                                        <td>@d.DateDepense.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @d.Motif
+                                            @if (!string.IsNullOrEmpty(d.Observation))
+                                            {
+                                                <div class="small text-muted">@d.Observation</div>
+                                            }
+                                        </td>
+                                        <td class="text-end fw-bold text-danger">-@d.Montant.ToString("N0") @d.Devise</td>
+                                        <td class="text-end">
+                                            <form asp-action="Delete" asp-route-id="@d.Id" method="post" onsubmit="return confirm('Supprimer cette dépense ?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

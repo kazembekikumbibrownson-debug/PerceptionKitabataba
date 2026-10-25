@@ -1,0 +1,109 @@
+﻿@model List<PerceptionKitabataba.Models.Paiement>
+@{
+    Layout = null;
+    var premier = Model.First();
+    var p = ViewBag.Parametres as PerceptionKitabataba.Models.Parametre;
+    var total = Model.Sum(x => x.Montant);
+    var eleve = premier.Eleve;
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>Reçu N° @premier.NumeroRecu</title>
+    <style>
+            body {
+                font-family: 'Courier New', monospace;
+                font-size: 13px;
+                padding: 20px;
+                max-width: 480px;
+                margin: auto;
+            }
+
+            h2 {
+                text-align: center;
+                font-size: 15px;
+                margin: 2px 0;
+            }
+
+            .c {
+                text-align: center;
+            }
+
+            .l {
+                border-top: 1px dashed #000;
+                margin: 10px 0;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+            }
+
+            th {
+                text-align: left;
+                font-size: 12px;
+                border-bottom: 1px solid #000;
+            }
+
+            td {
+                font-size: 12px;
+                padding: 3px 0;
+            }
+
+            .montant {
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            .no-print {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            @@media print {
+                .no-print {
+                    display: none;
+                }
+            }
+    </style>
+</head>
+<body>
+    <h2>@p?.NomEcole</h2>
+    <div class="c">Année scolaire @p?.AnneeScolaire</div>
+    <div class="l"></div>
+    <div class="c"><b>REÇU DE PERCEPTION N° @premier.NumeroRecu</b></div>
+    <div class="l"></div>
+    <table>
+        <tr><td>Date</td><td>: @premier.DatePaiement.ToString("dd/MM/yyyy")</td></tr>
+        <tr><td>Élève</td><td>: @eleve?.NomComplet</td></tr>
+        <tr><td>Matricule</td><td>: @eleve?.Matricule</td></tr>
+        <tr><td>Classe</td><td>: @eleve?.Niveau.Libelle()</td></tr>
+        <tr><td>Mode</td><td>: @premier.Mode</td></tr>
+    </table>
+    <div class="l"></div>
+    <div class="c"><b>MONTANT REÇU : @total.ToString("N0") CDF</b></div>
+    <div class="l"></div>
+    <div><b>Ventilation :</b></div>
+    <table>
+        <thead><tr><th>Désignation</th><th style="text-align:right">Montant</th></tr></thead>
+        <tbody>
+            @foreach (var pa in Model)
+            {
+                <tr><td>@pa.Frais?.Libelle</td><td style="text-align:right">@pa.Montant.ToString("N0") CDF</td></tr>
+            }
+        </tbody>
+    </table>
+    <div class="l"></div>
+    <div>Percepteur : @(string.IsNullOrEmpty(premier.Percepteur) ? "........................" : premier.Percepteur)</div>
+    <div style="margin-top:40px;">Signature : ........................</div>
+    <div class="l"></div>
+    <div class="c" style="font-size: 11px;">Merci de conserver ce reçu</div>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding:8px 16px; cursor:pointer; background:#0b5c3f; color:white; border:none;">🖨️ Imprimer</button>
+    </div>
+</body>
+</html>

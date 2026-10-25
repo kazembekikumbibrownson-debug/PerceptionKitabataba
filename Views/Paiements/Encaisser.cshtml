@@ -1,0 +1,183 @@
+﻿@model PerceptionKitabataba.Models.ViewModels.SituationEleveViewModel
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Encaisser";
+    var e = Model.Eleve;
+    var dateDefaut = DateTime.Today.ToString("yyyy-MM-dd");
+    var lignesTriees = Model.Lignes.OrderBy(l => l.Frais.Ordre).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>💵 Encaisser — @e.NomComplet</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">← Retour</a>
+</div>
+
+@if (TempData["Erreur"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Erreur"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Fiche élève -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3"><strong>Matricule :</strong> <code>@e.Matricule</code></div>
+            <div class="col-md-4"><strong>Classe :</strong> @e.NiveauComplet</div>
+            <div class="col-md-3"><strong>Sexe :</strong> @(e.Sexe == "M" ? "Masculin" : "Féminin")</div>
+            <div class="col-md-2 text-end">
+                <a asp-action="Historique" asp-route-id="@e.Id" class="btn btn-sm btn-outline-secondary">📜 Historique</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Situation mensuelle -->
+<h4>Situation mensuelle</h4>
+<div class="table-responsive mb-4">
+    <table class="table align-middle">
+        <thead class="table-success">
+            <tr>
+                <th>Frais</th>
+                <th>Type</th>
+                <th class="text-end">Dû</th>
+                <th class="text-end">Payé</th>
+                <th class="text-end">Reste</th>
+                <th style="min-width: 350px;">Encaisser</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ligne in lignesTriees)
+            {
+                var f = ligne.Frais;
+                <tr class="@(ligne.EstSolde ? "table-light" : "")">
+                    <td><strong>@f.Libelle</strong></td>
+                    <td>
+                        @if (f.Type == TypeFrais.Inscription)
+                        {
+                            <span class="badge bg-warning text-dark">Inscription</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-info text-dark">Mensuel</span>
+                        }
+                    </td>
+                    <td class="text-end">@ligne.Du.ToString("N0") @f.Devise</td>
+                    <td class="text-end">@ligne.Paye.ToString("N0") @f.Devise</td>
+                    <td class="text-end">
+                        @if (ligne.EstSolde)
+                        {
+                            <span class="badge bg-success">Soldé</span>
+                        }
+                        else
+                        {
+
+                            <strong class="text-danger">@ligne.Reste.ToString("N0") @f.Devise</strong>
+                        }
+                    </td>
+                    <td>
+                        @if (!ligne.EstSolde)
+                        {
+                            <form asp-action="Encaisser" method="post" class="d-flex gap-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="eleveId" value="@e.Id" />
+                                <input type="hidden" name="fraisDepartId" value="@f.Id" />
+                                <input type="hidden" name="datePaiement" value="@dateDefaut" />
+
+                                <input type="number" name="montant" step="any" min="0" max="@ligne.Reste"
+                                       value="@ligne.Reste" class="form-control form-control-sm" style="width:110px" required title="Montant à payer" />
+
+                                <select name="mode" class="form-select form-select-sm" style="width:120px">
+                                    <option>Espèces</option>
+                                    <option>Mobile Money</option>
+                                    <option>Virement</option>
+                                </select>
+
+                                <input type="text" name="observation" class="form-control form-control-sm" placeholder="Obs." style="width:100px" />
+
+                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Confirmer l\'encaissement de ce montant ?');">
+                                    💵
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Frais ponctuels -->
+@if (Model.LignesPonctuelles.Any())
+{
+    <h4 class="mt-4">📌 Frais ponctuels</h4>
+    <div class="table-responsive mb-4">
+        <table class="table align-middle">
+            <thead class="table-warning">
+                <tr>
+                    <th>Frais</th>
+                    <th class="text-end">Dû</th>
+                    <th class="text-end">Payé</th>
+                    <th class="text-end">Reste</th>
+                    <th style="min-width: 350px;">Encaisser</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ligne in Model.LignesPonctuelles)
+                {
+                    var f = ligne.Frais;
+                    <tr>
+                        <td><strong>@f.Libelle</strong></td>
+                        <td class="text-end">@ligne.Du.ToString("N0") @f.Devise</td>
+                        <td class="text-end">@ligne.Paye.ToString("N0") @f.Devise</td>
+                        <td class="text-end">
+                            @if (ligne.EstSolde)
+                            {
+                                <span class="badge bg-success">Soldé</span>
+                            }
+                            else
+                            {
+
+                                <strong class="text-danger">@ligne.Reste.ToString("N0") @f.Devise</strong>
+                            }
+                        </td>
+                        <td>
+                            @if (!ligne.EstSolde)
+                            {
+                                <form asp-action="PayerPonctuel" method="post" class="d-flex gap-1">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="eleveId" value="@e.Id" />
+                                    <input type="hidden" name="fraisId" value="@f.Id" />
+                                    <input type="hidden" name="datePaiement" value="@dateDefaut" />
+
+                                    <input type="number" name="montant" step="any" min="0" max="@ligne.Reste"
+                                           value="@ligne.Reste" class="form-control form-control-sm" style="width:110px" required />
+
+                                    <select name="mode" class="form-select form-select-sm" style="width:120px">
+                                        <option>Espèces</option>
+                                        <option>Mobile Money</option>
+                                        <option>Virement</option>
+                                    </select>
+
+                                    <input type="text" name="observation" class="form-control form-control-sm" placeholder="Obs." style="width:100px" />
+
+                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Confirmer l\'encaissement ?');">
+                                        💵
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="alert alert-info small">
+    💡 <strong>Astuce :</strong> Pour payer plusieurs mois d'avance, tapez un montant plus grand que le reste à payer.
+    Le système répartira automatiquement l'excédent sur les mois suivants.
+</div>

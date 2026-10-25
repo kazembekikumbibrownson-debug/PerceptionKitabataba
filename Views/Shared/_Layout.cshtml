@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Perception Kitabataba</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #0b5c3f;">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white fw-bold" asp-controller="Home" asp-action="Index">
+                    💰 Perception Kitabataba
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Eleves" asp-action="Index">👦 Élèves</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Frais" asp-action="Index">📋 Frais</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Paiements" asp-action="Index">💵 Encaisser</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Rapports" asp-action="Index">📊 Rapports</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Depenses" asp-action="Index">📉 Dépenses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Parametres" asp-action="Index">⚙️ Paramètres</a>
+                        </li>
+                    </ul>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="d-flex align-items-center text-white">
+                            <span class="me-3 small">
+                                👤 @User.FindFirst("NomComplet")?.Value
+                                <a asp-controller="Auth" asp-action="ChangePassword" class="text-white ms-2" title="Changer le mot de passe">🔐</a>
+                            </span>
+                            <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-light">Déconnexion</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted mt-4 py-3">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year - École Secondaire de Kitabataba
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

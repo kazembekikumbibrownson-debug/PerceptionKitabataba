@@ -1,0 +1,79 @@
+﻿@model IEnumerable<PerceptionKitabataba.Models.Frais>
+@using PerceptionKitabataba.Models
+@{
+    ViewData["Title"] = "Frais";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>📋 Frais à percevoir <span class="badge bg-secondary">@Model.Count()</span></h2>
+    <a asp-action="Create" class="btn btn-success">➕ Définir un frais</a>
+</div>
+
+@if (TempData["Succes"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Succes"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Aucun frais défini pour l'instant.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Libellé</th>
+                    <th>Type</th>
+                    <th class="text-end">Montant</th>
+                    <th>Classes</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    <tr>
+                        <td><strong>@f.Libelle</strong></td>
+                        <td>
+                            @switch (f.Type)
+                            {
+                                case TypeFrais.Inscription:
+                                    <span class="badge bg-warning text-dark">Inscription</span>
+                                    break;
+                                case TypeFrais.Mensuel:
+
+                                    <span class="badge bg-info text-dark">Mensuel</span>
+                                    break;
+                                default:
+
+                                    <span class="badge bg-secondary">Ponctuel</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="text-end">@f.Montant.ToString("N0") @f.Devise</td>
+                        <td>
+                            @if (f.ToutesClasses)
+                            {
+                                <span>Toutes</span>
+                            }
+                            else
+                            {
+
+                                <span class="small text-muted">@f.CiblesLibelle</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@f.Id" class="btn btn-sm btn-outline-primary">✏️</a>
+                            <a asp-action="Delete" asp-route-id="@f.Id" class="btn btn-sm btn-outline-danger">🗑️</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
